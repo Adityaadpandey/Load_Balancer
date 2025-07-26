@@ -3,6 +3,9 @@ import { randomUUID } from "crypto";
 import express from "express";
 import http from "http";
 import type { Instance } from "../types";
+import { loadConfig } from "../utils/read-config";
+
+const config = loadConfig();
 
 export class LoadBalancer {
   private instances: Instance[] = [];
