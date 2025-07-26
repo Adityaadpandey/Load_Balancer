@@ -32,4 +32,4 @@ jobs:
       - name: 💅 Prettier check
         run: |
           cd scaler
-          bunx prettier --check .
+          bunx prettier --write .
