@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout code
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v3
 
       - name: 🔧 Setup Bun
@@ -19,11 +19,17 @@ jobs:
         with:
           bun-version: latest
 
-      - name: 📦 Install dependencies
-        run: bun install
+      - name: 📦 Install dependencies in scaler/
+        run: |
+          cd scaler
+          bun install
 
-      - name: 🧪 Type check
-        run: bunx tsc --noEmit
+      - name: 🧪 Type check with tsc
+        run: |
+          cd scaler
+          bunx tsc --noEmit
 
       - name: 💅 Prettier check
-        run: bunx prettier --check .
+        run: |
+          cd scaler
+          bunx prettier --check .
