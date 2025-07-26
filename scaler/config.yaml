@@ -1,0 +1,9 @@
+# config.yaml
+location: "../backend/src/bin.ts"
+minInstances: 2
+maxInstances: 8
+checkInterval: 5000          # How often to check for scaling (ms)
+healthTimeout: 2000          # Health check timeout (ms)
+scaleUpThreshold: 3          # Average requests per instance to trigger scale up
+scaleDownThreshold: 0.5      # Average load below which to scale down
+idleTimeout: 30000           # Time before idle instance can be removed (ms)
