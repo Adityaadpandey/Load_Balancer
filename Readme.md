@@ -1,5 +1,9 @@
 # ⚖️ Dynamic Load Balancer with Auto-Scaling (Bun + Express)
 
+![CI](https://github.com/Adityaadpandey/Load_Balancer/actions/workflows/ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Built with Bun](https://img.shields.io/badge/Built%20With-Bun-blue)
+
 This project is a **dynamic load balancer** built with **Node.js**, **Express**, and **Bun**, capable of:
 
 * Automatically spawning and managing backend instances.
