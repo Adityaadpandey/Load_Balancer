@@ -14,17 +14,16 @@ jobs:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v3
 
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 20
-          cache: 'npm'
+          bun-version: latest
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: bun install
 
       - name: 🧪 Type check
-        run: npx tsc --noEmit
+        run: bunx tsc --noEmit
 
-      - name: 🧹 Lint code
-        run: npx eslint .
+      - name: 💅 Prettier check
+        run: bunx prettier --check .
