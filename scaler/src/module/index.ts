@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 import { randomUUID } from "crypto";
-import express from "express";
+import { type Request, type Response } from "express";
 import http from "http";
 import type { Instance } from "../types";
 import { loadConfig } from "../utils/read-config";
@@ -10,7 +10,6 @@ const config = loadConfig();
 export class LoadBalancer {
   private instances: Instance[] = [];
   private nextPort = 5001;
-  private nextInstanceIndex = 0;
   private healthCheckInterval?: NodeJS.Timeout;
   private scaleCheckInterval?: NodeJS.Timeout;
   SERVER_TIMEOUT: number = 30000; // 30 secondss
@@ -168,7 +167,7 @@ export class LoadBalancer {
 
     // Scale down if instances are idle
     const now = Date.now();
-    const idleThreshold = 30000; // 30 seconds
+    const idleThreshold = this.SERVER_TIMEOUT; // 30 seconds
     const lowLoadThreshold = 0.5;
 
     const avgLoad = healthy.reduce((sum, i) => sum + this.getInstanceLoad(i), 0) / healthy.length;
@@ -229,7 +228,7 @@ export class LoadBalancer {
     }, config.checkInterval);
   }
 
-  async handleRequest(req: express.Request, res: express.Response) {
+  async handleRequest(req: Request, res: Response) {
     const instance = this.pickInstance();
 
     if (!instance) {
