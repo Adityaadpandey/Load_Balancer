@@ -1,4 +1,3 @@
-// src/utils/read-config.ts
 import { readFileSync } from "fs";
 import { join } from "path";
 import yaml from "yaml";
@@ -9,12 +8,15 @@ export function loadConfig(filePath: string = "config.yaml"): AppConfig {
   const file = readFileSync(absolutePath, "utf8");
   const config = yaml.parse(file);
 
-  if (!config.location) {
-    throw new Error("Missing 'location' in config.yaml");
+  if (!config.dockerImage) {
+    throw new Error("Missing 'dockerImage' in config.yaml");
   }
 
   return {
-    location: config.location,
+    dockerImage: config.dockerImage,
+    containerPort: config.containerPort ?? 3000,
+    environment: config.environment ?? {},
+    volumes: config.volumes,
     minInstances: config.minInstances ?? 2,
     maxInstances: config.maxInstances ?? 10,
     checkInterval: config.checkInterval ?? 5000,
@@ -22,5 +24,9 @@ export function loadConfig(filePath: string = "config.yaml"): AppConfig {
     scaleUpThreshold: config.scaleUpThreshold ?? 3,
     scaleDownThreshold: config.scaleDownThreshold ?? 0.5,
     idleTimeout: config.idleTimeout ?? 30000,
+    healthEndpoint: config.healthEndpoint ?? "/health",
+    containerPrefix: config.containerPrefix ?? "lb-instance",
+    network: config.network,
+    pullPolicy: config.pullPolicy ?? "missing",
   };
 }

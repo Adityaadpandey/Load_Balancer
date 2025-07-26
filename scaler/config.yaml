@@ -1,9 +1,30 @@
-# config.yaml
-location: "../backend/src/bin.ts"
-minInstances: 2
-maxInstances: 8
-checkInterval: 5000          # How often to check for scaling (ms)
-healthTimeout: 2000          # Health check timeout (ms)
-scaleUpThreshold: 3          # Average requests per instance to trigger scale up
-scaleDownThreshold: 0.5      # Average load below which to scale down
-idleTimeout: 30000           # Time before idle instance can be removed (ms)
+dockerImage: "bun-express-app:latest"           # Docker image to scale
+containerPort: 3000                    # Port inside the container
+containerPrefix: "my-app-lb"           # Prefix for container names
+
+# Environment variables to pass to containers
+environment:
+  NODE_ENV: "production"
+  # DATABASE_URL: "postgres://user:pass@host:5432/db"
+  # REDIS_URL: "redis://localhost:6379"
+  # API_KEY: "your-secret-api-key"
+
+# Optional: Volume mounts
+volumes:
+  # - "/host/path:/container/path"
+  # - "/var/log/app:/app/logs"
+
+# Scaling configuration
+minInstances: 2                        # Minimum number of containers
+maxInstances: 10                       # Maximum number of containers
+scaleUpThreshold: 3                    # Average requests per instance to trigger scale up
+scaleDownThreshold: 0.5                # Average load below which to scale down
+
+# Health and timing configuration
+checkInterval: 5000                    # How often to check for scaling (ms)
+healthTimeout: 2000                    # Health check timeout (ms)
+healthEndpoint: "/health"              # Health check endpoint
+idleTimeout: 30000                     # Time before idle instance can be removed (ms)
+
+# Docker configuration
+pullPolicy: "missing"                  # always, missing, or never
