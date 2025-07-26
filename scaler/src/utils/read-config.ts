@@ -2,17 +2,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import yaml from "yaml";
-
-export type AppConfig = {
-  location: string;
-  minInstances: number;
-  maxInstances: number;
-  checkInterval: number;
-  healthTimeout: number;
-  scaleUpThreshold: number;
-  scaleDownThreshold: number;
-  idleTimeout: number;
-};
+import type { AppConfig } from "../types";
 
 export function loadConfig(filePath: string = "config.yaml"): AppConfig {
   const absolutePath = join(process.cwd(), filePath);
