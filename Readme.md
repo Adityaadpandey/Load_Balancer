@@ -27,11 +27,14 @@ This project is a **dynamic load balancer** built with **Node.js**, **Express**,
 
 ```
 .
-├── src/
-│   ├── index.ts            # Main load balancer server
-│   ├── utils/
-│   │   └── read-config.ts  # YAML config loader
-├── config.yaml             # Load balancer config
+.
+├── scaler/                    # Load balancer code
+│   ├── src/
+│   │   ├── index.ts           # Main load balancer server
+│   │   └── utils/
+│   │       └── read-config.ts # YAML config loader
+│   └── config.yaml            # Load balancer configuration file
+
 ```
 
 ---
