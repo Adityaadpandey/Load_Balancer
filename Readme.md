@@ -1,29 +1,39 @@
 # ⚖️ Dynamic Load Balancer with Auto-Scaling (Bun + Express)
 
-![CI](https://github.com/Adityaadpandey/Load_Balancer/actions/workflows/ci.yml/badge.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Built with Bun](https://img.shields.io/badge/Built%20With-Bun-blue)
+<div align="center">
+
+  <!-- Badges -->
+  <img src="https://github.com/Adityaadpandey/Load_Balancer/actions/workflows/ci.yml/badge.svg" />
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" />
+  <img src="https://img.shields.io/badge/Built%20With-Bun-blue" />
+  <img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg" />
+  <img src="https://img.shields.io/badge/Code-TypeScript-blue?logo=typescript" />
+  <img src="https://img.shields.io/github/repo-size/Adityaadpandey/Load_Balancer" />
+  <img src="https://img.shields.io/github/last-commit/Adityaadpandey/Load_Balancer" />
+
+</div>
 
 This project is a **dynamic load balancer** built with **Node.js**, **Express**, and **Bun**, capable of:
 
-* Automatically spawning and managing backend instances.
-* Performing regular **health checks** on each instance.
-* **Auto-scaling** instances up or down based on live load.
-* Forwarding incoming requests to the least loaded healthy instance.
-* Exposing an internal status endpoint for monitoring.
+- Automatically spawning and managing backend instances.
+- Performing regular **health checks** on each instance.
+- **Auto-scaling** instances up or down based on live load.
+- Forwarding incoming requests to the least loaded healthy instance.
+- Exposing an internal status endpoint for monitoring.
 
 ---
 
 ## 📦 Features
 
-* 🏁 **Instance Spawning**: Launches multiple instances of a backend app using `bun`.
-* 💓 **Health Checks**: Regularly checks if each instance is healthy (`/health` endpoint).
-* 📈 **Auto-Scaling**:
+- 🏁 **Instance Spawning**: Launches multiple instances of a backend app using `bun`.
+- 💓 **Health Checks**: Regularly checks if each instance is healthy (`/health` endpoint).
+- 📈 **Auto-Scaling**:
 
-  * Scales **up** when the load is high.
-  * Scales **down** when instances are idle.
-* 🚥 **Load-Aware Routing**: Requests are routed to the instance with the **lowest load**.
-* 🚦 **Status Endpoint**: `/lb-status` shows live info about active instances.
+  - Scales **up** when the load is high.
+  - Scales **down** when instances are idle.
+
+- 🚥 **Load-Aware Routing**: Requests are routed to the instance with the **lowest load**.
+- 🚦 **Status Endpoint**: `/lb-status` shows live info about active instances.
 
 ---
 
@@ -48,14 +58,14 @@ This project is a **dynamic load balancer** built with **Node.js**, **Express**,
 Here's the configuration format:
 
 ```yaml
-location: "../backend/src/bin.ts"   # Path to the Bun entry point
-minInstances: 2                     # Minimum number of instances
-maxInstances: 8                     # Maximum number of instances
-checkInterval: 5000                # Health + scaling check interval (ms)
-healthTimeout: 2000                # Timeout for health checks (ms)
-scaleUpThreshold: 3               # Avg load to trigger scale-up
-scaleDownThreshold: 0.5           # Avg load to trigger scale-down
-idleTimeout: 30000                 # Time before an idle instance is removed (ms)
+location: "../backend/src/bin.ts" # Path to the Bun entry point
+minInstances: 2 # Minimum number of instances
+maxInstances: 8 # Maximum number of instances
+checkInterval: 5000 # Health + scaling check interval (ms)
+healthTimeout: 2000 # Timeout for health checks (ms)
+scaleUpThreshold: 3 # Avg load to trigger scale-up
+scaleDownThreshold: 0.5 # Avg load to trigger scale-down
+idleTimeout: 30000 # Time before an idle instance is removed (ms)
 ```
 
 > 💡 Ensure your backend exposes a `/health` endpoint that returns `200 OK` when healthy.
@@ -80,9 +90,9 @@ npm install -g bun
 
 Ensure your backend app:
 
-* Can be run via `bun run path/to/app.ts --port 1234`
-* Accepts a `--port` flag.
-* Exposes a working `/health` endpoint.
+- Can be run via `bun run path/to/app.ts --port 1234`
+- Accepts a `--port` flag.
+- Exposes a working `/health` endpoint.
 
 Example `/health` response:
 
@@ -150,26 +160,27 @@ Returns live status of all instances:
 
 The load balancer listens for `SIGINT`/`SIGTERM` and will:
 
-* Kill all backend instances.
-* Clear health and scaling intervals.
+- Kill all backend instances.
+- Clear health and scaling intervals.
 
 ---
 
 ## 🧠 How Load Balancing Works
 
-* **Health Checks**: Every few seconds, all instances are pinged on `/health`.
-* **Routing Logic**:
+- **Health Checks**: Every few seconds, all instances are pinged on `/health`.
+- **Routing Logic**:
 
-  * Requests are routed to the instance with the **least load** (based on active requests + response time).
-* **Scaling**:
+  - Requests are routed to the instance with the **least load** (based on active requests + response time).
 
-  * **Scale Up**: When average load > `scaleUpThreshold`.
-  * **Scale Down**: When average load < `scaleDownThreshold` and idle time > `idleTimeout`.
+- **Scaling**:
+
+  - **Scale Up**: When average load > `scaleUpThreshold`.
+  - **Scale Down**: When average load < `scaleDownThreshold` and idle time > `idleTimeout`.
 
 ---
 
 ## 📌 Requirements
 
-* Node.js 18+
-* Bun (for spawning backend instances)
-* A compatible backend app exposing a `/health` route
+- Node.js 18+
+- Bun (for spawning backend instances)
+- A compatible backend app exposing a `/health` route
