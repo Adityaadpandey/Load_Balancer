@@ -32,7 +32,7 @@ app.use((req, res) => {
 
 // Graceful shutdown
 const shutdown = async () => {
-  console.log("\n[🛑] Shutting down gracefully...");
+  console.log("\n[X] Shutting down gracefully...");
   await loadBalancer.shutdown();
   process.exit(0);
 };

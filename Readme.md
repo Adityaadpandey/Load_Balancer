@@ -1,39 +1,42 @@
-# ⚖️ Dynamic Load Balancer with Auto-Scaling (Bun + Express)
+# Docker-Based Auto-Scaling Load Balancer (Express + Docker)
 
 <div align="center">
 
-  <!-- Badges -->
-  <img src="https://github.com/Adityaadpandey/Load_Balancer/actions/workflows/ci.yml/badge.svg" />
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" />
-  <img src="https://img.shields.io/badge/Built%20With-Bun-blue" />
-  <img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg" />
-  <img src="https://img.shields.io/badge/Code-TypeScript-blue?logo=typescript" />
-  <img src="https://img.shields.io/github/repo-size/Adityaadpandey/Load_Balancer" />
-  <img src="https://img.shields.io/github/last-commit/Adityaadpandey/Load_Balancer" />
+<img src="https://github.com/Adityaadpandey/Load_Balancer/actions/workflows/ci.yml/badge.svg" />
+<img src="https://img.shields.io/badge/License-MIT-green.svg" />
+<img src="https://img.shields.io/badge/Built%20With-Node.js-blue" />
+<img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg" />
+<img src="https://img.shields.io/badge/Code-TypeScript-blue?logo=typescript" />
+<img src="https://img.shields.io/github/repo-size/Adityaadpandey/Load_Balancer" />
+<img src="https://img.shields.io/github/last-commit/Adityaadpandey/Load_Balancer" />
 
 </div>
 
-This project is a **dynamic load balancer** built with **Node.js**, **Express**, and **Bun**, capable of:
+---
 
-- Automatically spawning and managing backend instances.
-- Performing regular **health checks** on each instance.
-- **Auto-scaling** instances up or down based on live load.
-- Forwarding incoming requests to the least loaded healthy instance.
-- Exposing an internal status endpoint for monitoring.
+## 🚀 Overview
+
+This project is a **dynamic load balancer** built with **Node.js**, **Express**, and **Docker**, capable of:
+
+- Auto-spawning and managing Docker containers of your app.
+- Performing regular **health checks**.
+- **Scaling** instances **up/down** based on load and idle time.
+- **Forwarding** requests to the **least loaded** healthy instance.
+- Providing a live **status endpoint** for monitoring.
 
 ---
 
-## 📦 Features
+## 📦 Key Features
 
-- 🏁 **Instance Spawning**: Launches multiple instances of a backend app using `bun`.
-- 💓 **Health Checks**: Regularly checks if each instance is healthy (`/health` endpoint).
-- 📈 **Auto-Scaling**:
+- 🐳 **Docker Integration** – Automatically pulls images, runs containers, and cleans up.
+- 💓 **Health Monitoring** – Periodic `/health` checks to verify backend availability.
+- ⚖️ **Auto-Scaling** – Adjusts number of instances based on load:
 
-  - Scales **up** when the load is high.
-  - Scales **down** when instances are idle.
+  - Scales **up** on high request load.
+  - Scales **down** when idle.
 
-- 🚥 **Load-Aware Routing**: Requests are routed to the instance with the **lowest load**.
-- 🚦 **Status Endpoint**: `/lb-status` shows live info about active instances.
+- 📉 **Smart Load Balancing** – Routes requests to the **least busy** healthy container.
+- 📊 **Live Status Endpoint** – Monitor all running instances in real-time.
 
 ---
 
@@ -41,114 +44,130 @@ This project is a **dynamic load balancer** built with **Node.js**, **Express**,
 
 ```
 .
-.
-├── scaler/                    # Load balancer code
+├── scaler/                    # Load balancer source code
 │   ├── src/
-│   │   ├── index.ts           # Main load balancer server
+│   │   ├── docker-load-balancer.ts # Core load balancing logic
+│   │   ├── docker-manager.ts       # Docker command wrapper
 │   │   └── utils/
-│   │       └── read-config.ts # YAML config loader
-│   └── config.yaml            # Load balancer configuration file
-
+│   │       └── read-config.ts      # YAML config loader
+│   ├── config.yaml                # Configuration for scaling and docker
+│   └── index.ts                   # Entry point
 ```
 
 ---
 
-## 🔧 Configuration (`config.yaml`)
-
-Here's the configuration format:
+## 🧩 Configuration (`config.yaml`)
 
 ```yaml
-location: "../backend/src/bin.ts" # Path to the Bun entry point
-minInstances: 2 # Minimum number of instances
-maxInstances: 8 # Maximum number of instances
-checkInterval: 5000 # Health + scaling check interval (ms)
+dockerImage: "bun-express-app:latest" # Docker image to launch
+containerPort: 3000 # Port the app runs on inside the container
+containerPrefix: "my-app-lb" # Prefix for naming containers
+
+environment: # Environment variables passed to each container
+  NODE_ENV: "production"
+
+volumes:# Optional volume mounts
+  # - "/host/path:/container/path"
+
+minInstances: 2 # Minimum number of containers
+maxInstances: 10 # Maximum number of containers
+scaleUpThreshold: 3 # Avg load per instance to scale up
+scaleDownThreshold: 0.5 # Avg load below which to scale down
+idleTimeout: 30000 # Idle time (ms) before scale down
+checkInterval: 5000 # Interval for health/scaling checks (ms)
 healthTimeout: 2000 # Timeout for health checks (ms)
-scaleUpThreshold: 3 # Avg load to trigger scale-up
-scaleDownThreshold: 0.5 # Avg load to trigger scale-down
-idleTimeout: 30000 # Time before an idle instance is removed (ms)
+healthEndpoint: "/health" # Path to health endpoint
+
+pullPolicy: "missing" # Image pull policy: always, missing, never
 ```
 
-> 💡 Ensure your backend exposes a `/health` endpoint that returns `200 OK` when healthy.
+> ✅ Make sure your Dockerized backend exposes a `/health` route that returns `200 OK`.
+
+---
+
+## 🛠️ Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18+)
+- [Docker](https://www.docker.com/)
+- A backend app Docker image (e.g. `bun-express-app:latest`) that:
+
+  - Listens on a specific port (e.g. `3000`)
+  - Accepts traffic at `/health` for status
+  - Is stateless (recommended for dynamic scaling)
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Install Dependencies
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/Adityaadpandey/Load_Balancer
+cd Load_Balancer
+```
+
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-Also install `bun` globally if you haven’t already:
+### 3. Configure `config.yaml`
 
-```bash
-npm install -g bun
-```
-
-### 2. Prepare the Backend App
-
-Ensure your backend app:
-
-- Can be run via `bun run path/to/app.ts --port 1234`
-- Accepts a `--port` flag.
-- Exposes a working `/health` endpoint.
-
-Example `/health` response:
-
-```json
-{ "status": "ok" }
-```
-
-### 3. Configure the Balancer
-
-Edit the `config.yaml` with the correct backend entry path and parameters.
+Update your Docker image, environment, and scaling settings.
 
 ---
 
-## ✅ Running the Load Balancer
+## ▶️ Running the Load Balancer
 
 ```bash
-bun start
-# or if you're using ts-node:
 npx ts-node src/index.ts
+# or
+npm start
 ```
 
-This starts the load balancer on port **4000** (default) and spawns the `minInstances` of your backend.
+> This will:
+>
+> - Pull your Docker image (if not already present).
+> - Start the minimum number of containers.
+> - Begin forwarding traffic to healthy containers on port `4000`.
 
 ---
 
 ## 🌐 Endpoints
 
-### 🔁 Proxy Handler
+### 🔁 Request Forwarding
 
-All requests will be forwarded to healthy backend instances:
+All incoming requests (except internal endpoints) are proxied to healthy backend containers:
 
-```http
-GET /api/your-endpoint -> proxied to backend instance
+```
+GET /api/user -> routed to http://localhost:5001/api/user (example)
 ```
 
-### 📊 Status Monitor
+### 📊 Load Balancer Status
 
-```http
+```
 GET /lb-status
 ```
 
-Returns live status of all instances:
+Returns real-time stats:
 
 ```json
 {
   "total": 3,
   "healthy": 3,
+  "dockerImage": "bun-express-app:latest",
   "instances": [
     {
       "id": "uuid",
+      "containerId": "abc123def456",
       "port": 5001,
       "healthy": true,
-      "activeRequests": 0,
-      "totalRequests": 10,
+      "status": "running",
+      "activeRequests": 1,
+      "totalRequests": 12,
       "responseTime": 123,
-      "load": 0.1
+      "load": 1.2
     }
   ]
 }
@@ -156,31 +175,47 @@ Returns live status of all instances:
 
 ---
 
-## 🛑 Graceful Shutdown
+## 📈 How It Works
 
-The load balancer listens for `SIGINT`/`SIGTERM` and will:
+### 🩺 Health Checks
 
-- Kill all backend instances.
-- Clear health and scaling intervals.
+Every `checkInterval` ms, each instance is pinged on `/health`. If it fails for more than 60 seconds, it's removed.
+
+### ⚖️ Load Balancing
+
+Routing is based on:
+
+```
+load = activeRequests + (responseTime penalty)
+```
+
+### 📊 Auto Scaling
+
+- **Scale Up**:
+
+  - If avg load > `scaleUpThreshold`
+  - And current instances < `maxInstances`
+
+- **Scale Down**:
+
+  - If avg load < `scaleDownThreshold`
+  - And some instances are idle for > `idleTimeout`
+  - And more than `minInstances` are running
 
 ---
 
-## 🧠 How Load Balancing Works
+## 🧹 Graceful Shutdown
 
-- **Health Checks**: Every few seconds, all instances are pinged on `/health`.
-- **Routing Logic**:
+The system listens for `SIGINT` and `SIGTERM` and will:
 
-  - Requests are routed to the instance with the **least load** (based on active requests + response time).
-
-- **Scaling**:
-
-  - **Scale Up**: When average load > `scaleUpThreshold`.
-  - **Scale Down**: When average load < `scaleDownThreshold` and idle time > `idleTimeout`.
+- Stop and remove all running containers.
+- Clean up health/scaling intervals.
 
 ---
 
-## 📌 Requirements
+## 🧠 Tips for Backend Apps
 
-- Node.js 18+
-- Bun (for spawning backend instances)
-- A compatible backend app exposing a `/health` route
+- Must be built into a **Docker image**.
+- Should **accept a fixed port** (e.g., via `EXPOSE` or `--port` flag).
+- Should respond to `/health` with HTTP 200 when healthy.
+- Be **stateless** or use external storage (like databases/Redis) to work well with auto-scaling.
