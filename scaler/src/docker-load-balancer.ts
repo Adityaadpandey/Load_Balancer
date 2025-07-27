@@ -34,7 +34,7 @@ export class DockerLoadBalancer {
       await this.waitForInstanceReady(instance);
       return instance;
     } catch (error) {
-      console.error(`[❌] Failed to spawn instance: ${error}`);
+      console.error(`[!] Failed to spawn instance: ${error}`);
       throw error;
     }
   }
@@ -51,20 +51,20 @@ export class DockerLoadBalancer {
           instance.status = "running";
           await this.checkInstanceHealth(instance);
           if (instance.isHealthy) {
-            console.log(`[✅] Instance ${instance.containerName} is ready`);
+            console.log(`[+] Instance ${instance.containerName} is ready`);
             return;
           }
         } else if (containerStatus === "exited" || containerStatus === "not-found") {
           throw new Error(`Container failed to start: ${containerStatus}`);
         }
       } catch (error) {
-        console.warn(`[⚠️] Waiting for instance ${instance.containerName}: ${error}`);
+        console.warn(`[!] Waiting for instance ${instance.containerName}: ${error}`);
       }
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    console.error(`[❌] Instance ${instance.containerName} failed to become ready, removing`);
+    console.error(`[!] Instance ${instance.containerName} failed to become ready, removing`);
     await this.removeInstance(instance);
     throw new Error(`Instance failed to become ready within ${maxWait}ms`);
   }
@@ -130,7 +130,7 @@ export class DockerLoadBalancer {
     );
 
     for (const instance of unhealthyInstances) {
-      console.log(`[🗑️] Removing persistently unhealthy instance: ${instance.containerName}`);
+      console.log(`[-] Removing persistently unhealthy instance: ${instance.containerName}`);
       await this.removeInstance(instance);
     }
   }
@@ -171,14 +171,14 @@ export class DockerLoadBalancer {
     const healthy = this.getHealthyInstances();
 
     if (this.shouldScaleUp()) {
-      console.log(`[⬆️] Scaling up - current load: ${healthy.length} instances`);
+      console.log(`[⬆] Scaling up - current load: ${healthy.length} instances`);
       try {
         await this.spawnInstance();
       } catch (error) {
-        console.error(`[❌] Failed to scale up: ${error}`);
+        console.error(`[!] Failed to scale up: ${error}`);
       }
     } else if (this.shouldScaleDown()) {
-      console.log(`[⬇️] Scaling down - instances idle`);
+      console.log(`[⬇] Scaling down - instances idle`);
 
       const candidate = healthy
         .filter((i) => i.activeRequests === 0)
@@ -250,7 +250,7 @@ export class DockerLoadBalancer {
     });
 
     proxyReq.on("error", (error) => {
-      console.error(`[❌] Proxy error for instance ${instance.containerName}: ${error.message}`);
+      console.error(`[!] Proxy error for instance ${instance.containerName}: ${error.message}`);
       instance.activeRequests = Math.max(0, instance.activeRequests - 1);
 
       if (!res.headersSent) {
@@ -262,7 +262,7 @@ export class DockerLoadBalancer {
     });
 
     proxyReq.on("timeout", () => {
-      console.warn(`[⚠️] Request timeout for instance ${instance.containerName}`);
+      console.warn(`[!] Request timeout for instance ${instance.containerName}`);
       proxyReq.destroy();
       instance.activeRequests = Math.max(0, instance.activeRequests - 1);
 
@@ -278,7 +278,7 @@ export class DockerLoadBalancer {
   }
 
   async initialize(): Promise<void> {
-    console.log(`🚀 Docker Load Balancer starting...`);
+    console.log(`Load Balancer starting...`);
 
     // Cleanup any orphaned containers from previous runs
     await this.dockerManager.cleanupOrphanedContainers();
@@ -291,7 +291,7 @@ export class DockerLoadBalancer {
       .fill(0)
       .map(() =>
         this.spawnInstance().catch((error) => {
-          console.error("[❌] Failed to spawn initial instance:", error);
+          console.error("[!] Failed to spawn initial instance:", error);
           return null;
         })
       );
@@ -299,9 +299,7 @@ export class DockerLoadBalancer {
     await Promise.allSettled(spawnPromises);
 
     const healthy = this.getHealthyInstances().length;
-    console.log(
-      `🚀 Docker Load Balancer ready with ${healthy}/${this.config.minInstances} instances`
-    );
+    console.log(`Docker Load Balancer ready with ${healthy}/${this.config.minInstances} instances`);
   }
 
   getStatus() {
@@ -326,7 +324,7 @@ export class DockerLoadBalancer {
   }
 
   async shutdown(): Promise<void> {
-    console.log(`[🛑] Shutting down Docker Load Balancer...`);
+    console.log(`[X] Shutting down Docker Load Balancer...`);
 
     if (this.healthCheckInterval) clearInterval(this.healthCheckInterval);
     if (this.scaleCheckInterval) clearInterval(this.scaleCheckInterval);
@@ -339,6 +337,6 @@ export class DockerLoadBalancer {
     );
 
     await Promise.allSettled(removalPromises);
-    console.log(`[✅] Docker Load Balancer shutdown complete`);
+    console.log(`[X] Docker Load Balancer shutdown complete`);
   }
 }

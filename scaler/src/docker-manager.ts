@@ -41,14 +41,14 @@ export class DockerManager {
     if (this.config.pullPolicy === "never") return;
 
     try {
-      console.log(`[🐳] Pulling Docker image: ${this.config.dockerImage}`);
+      console.log(`[+] Pulling Docker image: ${this.config.dockerImage}`);
       await this.executeDockerCommand(["pull", this.config.dockerImage]);
-      console.log(`[✅] Successfully pulled image: ${this.config.dockerImage}`);
+      console.log(`[+] Successfully pulled image: ${this.config.dockerImage}`);
     } catch (error) {
       if (this.config.pullPolicy === "always") {
         throw error;
       }
-      console.warn(`[⚠️] Failed to pull image, using local version: ${error}`);
+      console.warn(`[!] Failed to pull image, using local version: ${error}`);
     }
   }
 
@@ -89,7 +89,7 @@ export class DockerManager {
     dockerArgs.push(this.config.dockerImage);
 
     try {
-      console.log(`[🐳] Creating container: ${containerName} on port ${port}`);
+      console.log(`[+] Creating container: ${containerName} on port ${port}`);
       const containerId = await this.executeDockerCommand(dockerArgs);
 
       const instance: DockerInstance = {
@@ -106,17 +106,17 @@ export class DockerManager {
         status: "starting",
       };
 
-      console.log(`[✅] Container created: ${containerName} (${instance.containerId})`);
+      console.log(`[+] Container created: ${containerName} (${instance.containerId})`);
       return instance;
     } catch (error) {
-      console.error(`[❌] Failed to create container: ${error}`);
+      console.error(`[!] Failed to create container: ${error}`);
       throw error;
     }
   }
 
   async removeContainer(instance: DockerInstance): Promise<void> {
     try {
-      console.log(`[🗑️] Removing container: ${instance.containerName}`);
+      console.log(`[-] Removing container: ${instance.containerName}`);
 
       // Stop container gracefully
       await this.executeDockerCommand(["stop", instance.containerId]);
@@ -126,16 +126,16 @@ export class DockerManager {
       await this.executeDockerCommand(["rm", instance.containerId]);
       instance.status = "stopped";
 
-      console.log(`[✅] Container removed: ${instance.containerName}`);
+      console.log(`[+] Container removed: ${instance.containerName}`);
     } catch (error) {
-      console.error(`[❌] Failed to remove container ${instance.containerName}: ${error}`);
+      console.error(`[!] Failed to remove container ${instance.containerName}: ${error}`);
 
       // Force remove if graceful removal fails
       try {
         await this.executeDockerCommand(["rm", "-f", instance.containerId]);
-        console.log(`[✅] Force removed container: ${instance.containerName}`);
+        console.log(`[+] Force removed container: ${instance.containerName}`);
       } catch (forceError) {
-        console.error(`[❌] Failed to force remove container: ${forceError}`);
+        console.error(`[!] Failed to force remove container: ${forceError}`);
       }
     }
   }
@@ -176,15 +176,15 @@ export class DockerManager {
       const containers = await this.listManagedContainers();
 
       for (const containerName of containers) {
-        console.log(`[🧹] Cleaning up orphaned container: ${containerName}`);
+        console.log(`[X] Cleaning up orphaned container: ${containerName}`);
         await this.executeDockerCommand(["rm", "-f", containerName]);
       }
 
       if (containers.length > 0) {
-        console.log(`[✅] Cleaned up ${containers.length} orphaned containers`);
+        console.log(`[+] Cleaned up ${containers.length} orphaned containers`);
       }
     } catch (error) {
-      console.error(`[❌] Failed to cleanup orphaned containers: ${error}`);
+      console.error(`[!] Failed to cleanup orphaned containers: ${error}`);
     }
   }
 }
