@@ -47,11 +47,15 @@ This project is a **dynamic load balancer** built with **Node.js**, **Express**,
 ├── scaler/                    # Load balancer source code
 │   ├── src/
 │   │   ├── docker-load-balancer.ts # Core load balancing logic
-│   │   ├── docker-manager.ts       # Docker command wrapper
-│   │   └── utils/
-│   │       └── read-config.ts      # YAML config loader
+│   │   ├── docker-manager.ts
+│   │   ├─── types/
+│   │   │     └── index.ts     # types for the app
+│   │   │── utils/
+│   │   │   └── read-config.ts      # YAML config loader
+│   │   ├── index.ts                # Entry point to start the load Balancer
+│   │
 │   ├── config.yaml                # Configuration for scaling and docker
-│   └── index.ts                   # Entry point
+│
 ```
 
 ---
@@ -66,8 +70,8 @@ containerPrefix: "my-app-lb" # Prefix for naming containers
 environment: # Environment variables passed to each container
   NODE_ENV: "production"
 
-volumes:# Optional volume mounts
-  # - "/host/path:/container/path"
+volumes: # Optional volume mounts
+  - "/host/path:/container/path"
 
 minInstances: 2 # Minimum number of containers
 maxInstances: 10 # Maximum number of containers
@@ -103,13 +107,13 @@ pullPolicy: "missing" # Image pull policy: always, missing, never
 
 ```bash
 git clone https://github.com/Adityaadpandey/Load_Balancer
-cd Load_Balancer
+cd Load_Balancer/scaler
 ```
 
 ### 2. Install Dependencies
 
 ```bash
-npm install
+bun install
 ```
 
 ### 3. Configure `config.yaml`
@@ -121,9 +125,7 @@ Update your Docker image, environment, and scaling settings.
 ## ▶️ Running the Load Balancer
 
 ```bash
-npx ts-node src/index.ts
-# or
-npm start
+bun start
 ```
 
 > This will:
