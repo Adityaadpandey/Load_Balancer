@@ -8,6 +8,7 @@ export type DockerInstance = {
   activeRequests: number;
   totalRequests: number;
   lastRequestTime: number;
+  // nicecccccccccccccccc
   responseTime: number;
   status: "starting" | "running" | "stopping" | "stopped";
 };
