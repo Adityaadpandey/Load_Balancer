@@ -1,0 +1,4 @@
+dockerImage: "bun-express-app:latest"
+minInstances: 2
+maxInstances: 5
+responseTimeThreshold: 500
